@@ -1,0 +1,308 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		220779671918A35E00AB6B33 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 220779661918A35E00AB6B33 /* Foundation.framework */; };
+		220779691918A35E00AB6B33 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 220779681918A35E00AB6B33 /* CoreGraphics.framework */; };
+		2207796B1918A35E00AB6B33 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2207796A1918A35E00AB6B33 /* UIKit.framework */; };
+		228A0073191A487000724095 /* TODocumentsDirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0072191A487000724095 /* TODocumentsDirectoryWatcher.m */; };
+		228A0078191A488100724095 /* TOAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0075191A488100724095 /* TOAppDelegate.m */; };
+		228A0079191A488100724095 /* TOViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0077191A488100724095 /* TOViewController.m */; };
+		228A007B191A488B00724095 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 228A007A191A488B00724095 /* Images.xcassets */; };
+		228A0080191A489C00724095 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A007F191A489C00724095 /* main.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		220779631918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TODocumentsDirectoryWatcherExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		220779661918A35E00AB6B33 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		220779681918A35E00AB6B33 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2207796A1918A35E00AB6B33 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		220779851918A35E00AB6B33 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		228A0071191A487000724095 /* TODocumentsDirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TODocumentsDirectoryWatcher.h; path = TODocumentsDirectoryWatcher/TODocumentsDirectoryWatcher.h; sourceTree = "<group>"; };
+		228A0072191A487000724095 /* TODocumentsDirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TODocumentsDirectoryWatcher.m; path = TODocumentsDirectoryWatcher/TODocumentsDirectoryWatcher.m; sourceTree = "<group>"; };
+		228A0074191A488100724095 /* TOAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TOAppDelegate.h; path = TODocumentsDirectoryWatcherExample/TOAppDelegate.h; sourceTree = SOURCE_ROOT; };
+		228A0075191A488100724095 /* TOAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TOAppDelegate.m; path = TODocumentsDirectoryWatcherExample/TOAppDelegate.m; sourceTree = SOURCE_ROOT; };
+		228A0076191A488100724095 /* TOViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TOViewController.h; path = TODocumentsDirectoryWatcherExample/TOViewController.h; sourceTree = SOURCE_ROOT; };
+		228A0077191A488100724095 /* TOViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TOViewController.m; path = TODocumentsDirectoryWatcherExample/TOViewController.m; sourceTree = SOURCE_ROOT; };
+		228A007A191A488B00724095 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = TODocumentsDirectoryWatcherExample/Images.xcassets; sourceTree = SOURCE_ROOT; };
+		228A007C191A489600724095 /* TODocumentsDirectoryWatcherExample-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "TODocumentsDirectoryWatcherExample-Info.plist"; path = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Info.plist"; sourceTree = SOURCE_ROOT; };
+		228A007D191A489600724095 /* TODocumentsDirectoryWatcherExample-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TODocumentsDirectoryWatcherExample-Prefix.pch"; path = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		228A007F191A489C00724095 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = TODocumentsDirectoryWatcherExample/main.m; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		220779601918A35E00AB6B33 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				220779691918A35E00AB6B33 /* CoreGraphics.framework in Frameworks */,
+				2207796B1918A35E00AB6B33 /* UIKit.framework in Frameworks */,
+				220779671918A35E00AB6B33 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2207795A1918A35E00AB6B33 = {
+			isa = PBXGroup;
+			children = (
+				220779A91918A66000AB6B33 /* TODocumentsDirectoryWatcher */,
+				2207796C1918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample */,
+				220779651918A35E00AB6B33 /* Frameworks */,
+				220779641918A35E00AB6B33 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		220779641918A35E00AB6B33 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				220779631918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		220779651918A35E00AB6B33 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				220779661918A35E00AB6B33 /* Foundation.framework */,
+				220779681918A35E00AB6B33 /* CoreGraphics.framework */,
+				2207796A1918A35E00AB6B33 /* UIKit.framework */,
+				220779851918A35E00AB6B33 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2207796C1918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample */ = {
+			isa = PBXGroup;
+			children = (
+				228A007A191A488B00724095 /* Images.xcassets */,
+				228A0074191A488100724095 /* TOAppDelegate.h */,
+				228A0075191A488100724095 /* TOAppDelegate.m */,
+				228A0076191A488100724095 /* TOViewController.h */,
+				228A0077191A488100724095 /* TOViewController.m */,
+				2207796D1918A35E00AB6B33 /* Supporting Files */,
+			);
+			name = TODocumentsDirectoryWatcherExample;
+			path = TODirectoryWatcher;
+			sourceTree = "<group>";
+		};
+		2207796D1918A35E00AB6B33 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				228A007F191A489C00724095 /* main.m */,
+				228A007C191A489600724095 /* TODocumentsDirectoryWatcherExample-Info.plist */,
+				228A007D191A489600724095 /* TODocumentsDirectoryWatcherExample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		220779A91918A66000AB6B33 /* TODocumentsDirectoryWatcher */ = {
+			isa = PBXGroup;
+			children = (
+				228A0071191A487000724095 /* TODocumentsDirectoryWatcher.h */,
+				228A0072191A487000724095 /* TODocumentsDirectoryWatcher.m */,
+			);
+			name = TODocumentsDirectoryWatcher;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		220779621918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 220779951918A35E00AB6B33 /* Build configuration list for PBXNativeTarget "TODocumentsDirectoryWatcherExample" */;
+			buildPhases = (
+				2207795F1918A35E00AB6B33 /* Sources */,
+				220779601918A35E00AB6B33 /* Frameworks */,
+				220779611918A35E00AB6B33 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TODocumentsDirectoryWatcherExample;
+			productName = TODirectoryWatcher;
+			productReference = 220779631918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2207795B1918A35E00AB6B33 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = TO;
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = TimOliver;
+			};
+			buildConfigurationList = 2207795E1918A35E00AB6B33 /* Build configuration list for PBXProject "TODocumentsDirectoryWatcherExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2207795A1918A35E00AB6B33;
+			productRefGroup = 220779641918A35E00AB6B33 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				220779621918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		220779611918A35E00AB6B33 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				228A007B191A488B00724095 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2207795F1918A35E00AB6B33 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				228A0080191A489C00724095 /* main.m in Sources */,
+				228A0078191A488100724095 /* TOAppDelegate.m in Sources */,
+				228A0079191A488100724095 /* TOViewController.m in Sources */,
+				228A0073191A487000724095 /* TODocumentsDirectoryWatcher.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		220779931918A35E00AB6B33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		220779941918A35E00AB6B33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		220779961918A35E00AB6B33 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Prefix.pch";
+				INFOPLIST_FILE = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Info.plist";
+				PRODUCT_NAME = TODocumentsDirectoryWatcherExample;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		220779971918A35E00AB6B33 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Prefix.pch";
+				INFOPLIST_FILE = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Info.plist";
+				PRODUCT_NAME = TODocumentsDirectoryWatcherExample;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2207795E1918A35E00AB6B33 /* Build configuration list for PBXProject "TODocumentsDirectoryWatcherExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				220779931918A35E00AB6B33 /* Debug */,
+				220779941918A35E00AB6B33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		220779951918A35E00AB6B33 /* Build configuration list for PBXNativeTarget "TODocumentsDirectoryWatcherExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				220779961918A35E00AB6B33 /* Debug */,
+				220779971918A35E00AB6B33 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2207795B1918A35E00AB6B33 /* Project object */;
+}
