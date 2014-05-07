@@ -1,6 +1,6 @@
 # TODocumentsDirectoryWatcher
 
-<img src="https://raw.github.com/TimOliver/TODocumentsDirectoryWatcher/master/Screenshots/TODocumentsDirectoryWatcher_iPhone5s.jpg" alt="TODocumentsDirectoryWatcher on iPhone 5s" style="width: 392px; margin: 0 auto; display: block;" />
+<img src="https://raw.github.com/TimOliver/TODocumentsDirectoryWatcher/master/Screenshots/TODocumentsDirectoryWatcher_iPhone5s.jpg" alt="TODocumentsDirectoryWatcher on iPhone 5s" width="392" align="center" />
 
 TODocumentsDirectoryWatcher is an open-source singleton module, designed to observe your iOS app's Documents directory, and post NSNotifiction messages whenever it detects that a file/folder is added, renamed, or deleted within it.
 
