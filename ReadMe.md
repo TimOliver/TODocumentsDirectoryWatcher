@@ -8,6 +8,14 @@ The goal of this module is to be able to explicilty detect when a user has modif
 
 This originally started off as an implementation in my iOS app, iComic (http://icomics.co) in order to detect when a user had dragged a comic file from their Desktop into the app itself via iTunes, so that the app may start importing/processing the file once it's finished copying. I've made it open-source in the hopes that others may find it useful, and might know of ways to help improve it.
 
+## How to Test
+### iPhone Simulator
+1. Navigate to the iPhone Simulator's Applications directory: *~/Library/Application Support/iPhone Simulator/{iOS Version}/Applications*
+2. Locate the TODocumentsDirectoryWatcher app in the Applications directory, and start adding files into its 'Documents' folder.
+
+### Native iOS Device
+Instructions on how to do iOS documents sharing on native devices is available on Apple's website: http://support.apple.com/kb/ht4094
+
 ## Features
 * Can detect when a batch of new files is added to the Documents directory, and will notify the system after all of the files have finished copying.
 * Using the Unix file-system structure, it can detect when files in the Documents directory have been renamed.
