@@ -1,12 +1,12 @@
 # TODocumentsDirectoryWatcher
 
-<img src="https://raw.github.com/TimOliver/TODocumentsDirectoryWatcher/master/Screenshots/TODocumentsDirectoryWatcher_iPhone5s.jpg" alt="TODocumentsDirectoryWatcher on iPhone 5s" style="max-width:392px;" />
+<img src="https://raw.github.com/TimOliver/TODocumentsDirectoryWatcher/master/Screenshots/TODocumentsDirectoryWatcher_iPhone5s.jpg" alt="TODocumentsDirectoryWatcher on iPhone 5s" style="width: 392px; margin: 0 auto; display: block;" />
 
 TODocumentsDirectoryWatcher is an open-source singleton module, designed to observe your iOS app's Documents directory, and post NSNotifiction messages whenever it detects that a file/folder is added, renamed, or deleted within it.
 
 The goal of this module is to be able to explicilty detect when a user has modified the contents of the Documents folder from outside the app, such as the documents sharing window in iTunes on Mac/PC, even if the app was closed in the interim.
 
-This originally started off as an implementation in my iOS app, (iComics)[http://icomics.co] in order to detect when a user had dragged a comic file from their Desktop into the app itself via iTunes, so that the app may start importing/processing the file once it's finished copying. I've made it open-source in the hopes that others may find it useful, and might know of ways to help improve it.
+This originally started off as an implementation in my iOS app, iComic (http://icomics.co) in order to detect when a user had dragged a comic file from their Desktop into the app itself via iTunes, so that the app may start importing/processing the file once it's finished copying. I've made it open-source in the hopes that others may find it useful, and might know of ways to help improve it.
 
 ## Features
 * Can detect when a batch of new files is added to the Documents directory, and will notify the system after all of the files have finished copying.
