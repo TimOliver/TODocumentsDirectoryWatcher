@@ -17,6 +17,7 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
 
 @property (nonatomic, strong) UIBarButtonItem *helpButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *loadingBarButtonItem;
+@property (nonatomic, strong) UIBarButtonItem *addDirButton;
 
 - (void)filesStartedLoading;
 - (void)filesEndedLoading;
@@ -31,6 +32,7 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
 - (void)saveItemsToDisk;
 
 - (void)helpButtonItemTapped;
+- (void)addDirectoryButtonItemTapped;
 
 @end
 
@@ -75,6 +77,9 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
     
     self.helpButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Do what?" style:UIBarButtonItemStylePlain target:self action:@selector(helpButtonItemTapped)];
     self.navigationItem.leftBarButtonItem = self.helpButtonItem;
+    
+    self.addDirButton = [[UIBarButtonItem alloc] initWithTitle:@"+ Dir" style:UIBarButtonItemStylePlain target:self action:@selector(addDirectoryButtonItemTapped)];
+    self.navigationItem.rightBarButtonItem = self.addDirButton;
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -89,6 +94,21 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
 - (void)helpButtonItemTapped
 {
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://support.apple.com/kb/ht4094"]];
+}
+
+- (void)addDirectoryButtonItemTapped
+{
+    NSInteger directoryNumber = 0;
+    NSString *directoryName = nil;
+    
+    do {
+        directoryName = [NSString stringWithFormat:@"Directory %ld", (long)++directoryNumber];
+    } while ([[NSFileManager defaultManager] fileExistsAtPath:[[self documentsDirectory] stringByAppendingPathComponent:directoryName]]);
+    
+    [[NSFileManager defaultManager] createDirectoryAtPath:[[self documentsDirectory] stringByAppendingPathComponent:directoryName]
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:nil];
 }
 
 #pragma mark - Load Data from disk - 
@@ -121,7 +141,7 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
 
 - (void)filesEndedLoading
 {
-    self.navigationItem.rightBarButtonItem = nil;
+    self.navigationItem.rightBarButtonItem = self.addDirButton;
 }
 
 - (void)filesWereAdded:(NSNotification *)notification

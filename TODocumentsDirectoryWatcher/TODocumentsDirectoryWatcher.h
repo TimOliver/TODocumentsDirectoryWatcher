@@ -44,7 +44,7 @@ extern NSString *const TODocumentsDirectoryWatcherDidDeleteFiles;
 */
 @interface TODocumentsDirectoryWatcher : NSObject
 
-/* Singleton instance of the class */
+/* Singleton instance of the class. */
 + (TODocumentsDirectoryWatcher *)sharedWatcher;
 
 /* Flag for when file copying is active. */

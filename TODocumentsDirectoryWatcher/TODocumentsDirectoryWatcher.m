@@ -46,7 +46,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 /* Serial queue to handle all tasks in this controller */
 @property (nonatomic, strong) dispatch_queue_t watcherQueue;
 
-/* GCD Source in charge of monitoring the directory */
+/* The main GCD Source in charge of monitoring the documents directory */
 @property (nonatomic, strong) dispatch_source_t dispatchSource;
 
 /* A snapshot of the Documents folder, with all files confirmed to have been completely imported. */
@@ -55,21 +55,31 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 /* A set of potentially new files, that may not have finished copying yet */
 @property (nonatomic, strong) NSMutableDictionary *pendingFiles;
 
+/* A set of files contained inside new directories that may not have finished copying. */
+@property (nonatomic, strong) NSMutableDictionary *pendingSubdirectoryFiles;
+
 /* If scanning for file changes is temporarily paused */
 @property (nonatomic, assign) BOOL isPaused;
 
 /* A timer for polling when to check for importing files */
 @property (nonatomic, strong) NSTimer *fileImportTimer;
 
+/* System directory constants */
 + (NSString *)applicationCachePath;
 + (NSString *)applicationDocumentsPath;
 + (NSString *)cachedDataFilePath;
+
+/* Creates a new GCD Source object. */
+- (dispatch_source_t)createDispatchSourceForDirectoryAtPath:(NSString *)directory;
 
 /* Called whenever an update event is fired. */
 - (void)handleDocumentsDirectoryUpdateEvent;
 
 /* Called by the timer to check the state of the new files */
 - (void)importTimerFired;
+
+/* Given a directory in the Documents folder, check its contents for any files that may have changed. */
+- (BOOL)contentsHaveChangedInSubdirectory:(NSString *)subdirectoryPath;
 
 @end
 
@@ -92,6 +102,36 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 }
 
 #pragma mark - Starting/Stopping Watch State -
+- (dispatch_source_t)createDispatchSourceForDirectoryAtPath:(NSString *)directory
+{
+    int dirFD = open([directory fileSystemRepresentation], O_EVTONLY);
+    if (dirFD < 0)
+        return nil;
+    
+    // Get the main thread's serial dispatch queue (since we'll be updating the UI)
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    if (!queue) {
+        close(dirFD);
+        return nil;
+    }
+    
+    // Create a dispatch source to monitor the directory for writes
+    dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, // Watch for certain events on the VNODE spec'd by the second (handle) argument
+                                                      dirFD,                      // The handle to watch (the directory FD)
+                                                      DISPATCH_VNODE_WRITE,       // The events to watch for on the VNODE spec'd by handle (writes)
+                                                      queue);                     // The queue to which the handler block will ultimately be dispatched
+    
+    if (!source) {
+        close(dirFD);
+        return nil;
+    }
+    
+    // Set the block to be submitted in response to source cancellation
+    dispatch_source_set_cancel_handler(source, ^{close(dirFD);});
+    
+    return source;
+}
+
 //http://www.mlsite.net/blog/?p=2655
 - (void)start
 {
@@ -105,33 +145,12 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 	NSString *documentsPath = [TODocumentsDirectoryWatcher applicationDocumentsPath];
     
 	// Open an event-only file descriptor associated with the directory
-	int dirFD = open([documentsPath fileSystemRepresentation], O_EVTONLY);
-	if (dirFD < 0)
+    self.dispatchSource = [self createDispatchSourceForDirectoryAtPath:documentsPath];
+    if (self.dispatchSource == nil)
         return;
-    
-	// Get the main thread's serial dispatch queue (since we'll be updating the UI)
-	dispatch_queue_t queue = dispatch_get_main_queue();
-	if (!queue)
-	{
-		close(dirFD);
-		return;
-	}
-    
-	// Create a dispatch source to monitor the directory for writes
-	self.dispatchSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE,	// Watch for certain events on the VNODE spec'd by the second (handle) argument
-                                  dirFD,                                        // The handle to watch (the directory FD)
-                                  DISPATCH_VNODE_WRITE,                         // The events to watch for on the VNODE spec'd by handle (writes)
-                                  queue);                                       // The queue to which the handler block will ultimately be dispatched
-	if (!self.dispatchSource) {
-		close(dirFD);
-		return;
-	}
     
 	// Set the block to be submitted in response to an event
 	dispatch_source_set_event_handler(self.dispatchSource, ^{[self handleDocumentsDirectoryUpdateEvent];});
-    
-	// Set the block to be submitted in response to source cancellation
-	dispatch_source_set_cancel_handler(self.dispatchSource, ^{close(dirFD);});
     
 	// Unsuspend the source s.t. it will begin submitting blocks
 	dispatch_resume(self.dispatchSource);
@@ -177,14 +196,20 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
     
     //offload to the serial queue to minimize UI locking
     dispatch_async(self.watcherQueue, ^{
+        //Keep track if we make a change that needs to be persisted to disk
         BOOL diskWriteNecessary = NO;
         
         NSString *documentsPath = [TODocumentsDirectoryWatcher applicationDocumentsPath];
         
+        //create the store to hold pending files in the Documents directory
         if (self.pendingFiles == nil)
             self.pendingFiles = [NSMutableDictionary dictionary];
         
-        //import the last snapshot cache
+        //create the store to hold all first-level subdirectory files
+        if (self.pendingSubdirectoryFiles == nil)
+            self.pendingSubdirectoryFiles = [NSMutableDictionary dictionary];
+        
+        //import the last snapshot cache if we haven't already got it
         if (self.documentsFolderCache == nil) {
             NSData *data = [NSData dataWithContentsOfFile:[TODocumentsDirectoryWatcher cachedDataFilePath]];
             if (data)
@@ -194,10 +219,10 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
                 self.documentsFolderCache = [NSMutableDictionary new];
         }
         
-        //get a snapshot of the current files in the Documents folder
+        //get a list of the current files in the Documents folder
         NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:documentsPath error:nil];
         
-        //loop though all of these files to see if any aren't already in the snapshot
+        //loop though all of these files to see if any aren't already in the cached snapshot
         NSMutableSet *possibleNewFiles = [NSMutableSet set];
         for (NSString *file in files) {
             if (self.documentsFolderCache[file] == nil)
@@ -233,7 +258,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             }
         }
         
-        //for any renamed file, pull it out of the snapshot cache, renamed it, and re-insert it
+        //for any renamed file, pull it out of the snapshot cache, rename it, and re-insert it
         if (renamedFiles.count > 0) {
             for (NSString *renameKey in renamedFiles.allKeys) {
                 NSMutableDictionary *snapshotFile = [self.documentsFolderCache[renameKey] mutableCopy];
@@ -280,7 +305,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             [jsonData writeToFile:[TODocumentsDirectoryWatcher cachedDataFilePath] atomically:YES];
         }
         
-        //if there are pending files, kickstart a polling timer
+        //if there are pending files left, kickstart a polling timer
         if (self.pendingFiles.count > 0 && self.fileImportTimer == nil) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 //kickstart a polling timer
@@ -306,6 +331,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //compare each pending file to see if their size has changed at all
         BOOL fileSizeChanged = NO;
         for (NSString *pendingFileName in self.pendingFiles) {
+            //grab the attributes of the file and see if the size has changed at all since last poll
             NSString *filePath = [documentsPath stringByAppendingPathComponent:pendingFileName];
             NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
             if (attributes.fileSize > [self.pendingFiles[pendingFileName][kCacheKeyFileSize] integerValue])
@@ -313,6 +339,12 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             
             //in any case, update the cached version with the current file size
             self.pendingFiles[pendingFileName][kCacheKeyFileSize] = @(attributes.fileSize);
+            
+            //====================================================
+            
+            //if the file is a directory, take a snapshot of its contents and see if they've changed
+            if ([attributes.fileType isEqualToString:NSFileTypeDirectory])
+                fileSizeChanged = (fileSizeChanged || [self contentsHaveChangedInSubdirectory:filePath]);
         }
         
         //If NONE of the files have changed, then they must have finished importing
@@ -338,6 +370,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             
             //clean the data
             self.pendingFiles = nil;
+            self.pendingSubdirectoryFiles = nil;
             self.documentsFolderCache = nil;
             
             //cancel the timer
@@ -356,6 +389,43 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             });
         }
     });
+}
+
+- (BOOL)contentsHaveChangedInSubdirectory:(NSString *)subdirectoryPath
+{
+    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:subdirectoryPath error:nil];
+    if (files.count == 0)
+        return NO;
+    
+    //If not done already, build a snapshot of the current directory contents
+    NSString *folderName = [subdirectoryPath lastPathComponent];
+    if (self.pendingSubdirectoryFiles[folderName] == nil)
+        self.pendingSubdirectoryFiles[folderName] = [NSMutableDictionary dictionary];
+    
+    NSMutableDictionary *folderContentsSnapshot = (NSMutableDictionary *)self.pendingSubdirectoryFiles[folderName];
+    
+    //loop through each file, and check its size
+    for (NSString *file in files) {
+        NSString *filePath = [subdirectoryPath stringByAppendingPathComponent:file];
+        NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        if (attributes == nil)
+            continue;
+        
+        //create the file size for the first time (and skip the check as it's pointless for now)
+        NSNumber *fileID = @(attributes.fileSystemFileNumber);
+        if (folderContentsSnapshot[fileID] == nil) {
+            folderContentsSnapshot[fileID] = @(attributes.fileSize);
+            continue;
+        }
+        
+        //check to see if since the last poll, the size of this file has changed
+        if ([(NSNumber *)folderContentsSnapshot[fileID] unsignedLongLongValue] != attributes.fileSize) {
+            folderContentsSnapshot[fileID] = @(attributes.fileSize);
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 #pragma mark - Static Methods - 
