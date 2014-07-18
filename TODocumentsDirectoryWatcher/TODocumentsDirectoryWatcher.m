@@ -419,13 +419,15 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         }
         
         //check to see if since the last poll, the size of this file has changed
-        if ([(NSNumber *)folderContentsSnapshot[fileID] unsignedLongLongValue] != attributes.fileSize) {
-            folderContentsSnapshot[fileID] = @(attributes.fileSize);
-            return YES;
+        if ([(NSNumber *)folderContentsSnapshot[fileID] unsignedLongLongValue] == attributes.fileSize) {
+            return NO;
         }
+
+        //update the snapshot with the new filesize
+        folderContentsSnapshot[fileID] = @(attributes.fileSize);
     }
     
-    return NO;
+    return YES;
 }
 
 #pragma mark - Static Methods - 
