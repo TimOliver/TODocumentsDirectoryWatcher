@@ -23,7 +23,7 @@
 #import "TODocumentsDirectoryWatcher.h"
 
 /* Permanent file name of cache file that holds the current state of the Documents directory */
-static NSString * const kTODocumentsDirectoryWatcherCacheFileName = @"com.timoliver.documentsDirectoryCache.json";
+static NSString * const kTODocumentsDirectoryWatcherCacheFileName = @"com.timoliver.documentsDirectorySnapshot.json";
 
 /* NSNotification Message Names */
 NSString *const TODocumentsDirectoryWatcherDidStartLoadingFiles = @"TODocumentsDirectoryWatcherDidStartLoadingFiles";
@@ -50,7 +50,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 @property (nonatomic, strong) dispatch_source_t dispatchSource;
 
 /* A snapshot of the Documents folder, with all files confirmed to have been completely imported. */
-@property (nonatomic, strong) NSMutableDictionary *documentsFolderCache;
+@property (nonatomic, strong) NSMutableDictionary *documentsFolderSnapshot;
 
 /* A set of potentially new files, that may not have finished copying yet */
 @property (nonatomic, strong) NSMutableDictionary *pendingFiles;
@@ -65,21 +65,24 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 @property (nonatomic, strong) NSTimer *fileImportTimer;
 
 /* System directory constants */
-+ (NSString *)applicationCachePath;
++ (NSString *)applicationSupportPath;
 + (NSString *)applicationDocumentsPath;
-+ (NSString *)cachedDataFilePath;
++ (NSString *)snapshotDataFilePath;
 
 /* Creates a new GCD Source object. */
 - (dispatch_source_t)createDispatchSourceForDirectoryAtPath:(NSString *)directory;
 
 /* Called whenever an update event is fired. */
-- (void)handleDocumentsDirectoryUpdateEvent;
+- (void)handleDocumentsDirectoryUpdateEventSilent:(BOOL)silent;
 
 /* Called by the timer to check the state of the new files */
 - (void)importTimerFired;
 
 /* Given a directory in the Documents folder, check its contents for any files that may have changed. */
 - (BOOL)contentsHaveChangedInSubdirectory:(NSString *)subdirectoryPath;
+
+/* Saves the current contents of the in-memory snapshot to disk. */
+- (void)saveSnapshotContentsToDisk;
 
 @end
 
@@ -99,6 +102,19 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 - (void)dealloc
 {
     [self stop];
+}
+
+- (void)saveSnapshotContentsToDisk
+{
+    if (self.documentsFolderSnapshot) {
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.documentsFolderSnapshot options:kNilOptions error:nil];
+        NSURL *writeURL = [NSURL fileURLWithPath:[TODocumentsDirectoryWatcher snapshotDataFilePath]];
+        [writeURL setResourceValue:@(YES) forKey:NSURLIsExcludedFromBackupKey error:nil]; //DON'T let iCloud back this up. (File IDs are unique to this device)
+        [jsonData writeToURL:writeURL atomically:YES];
+    }
+    else {
+        [[NSFileManager defaultManager] removeItemAtPath:[TODocumentsDirectoryWatcher snapshotDataFilePath] error:nil];
+    }
 }
 
 #pragma mark - Starting/Stopping Watch State -
@@ -135,8 +151,11 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 //http://www.mlsite.net/blog/?p=2655
 - (void)start
 {
-    if (self.isPaused)
+    if (self.isPaused) {
         self.isPaused = NO;
+        [self handleDocumentsDirectoryUpdateEventSilent:YES];
+        return;
+    }
     
     if (self.dispatchSource != NULL)
         return;
@@ -150,13 +169,13 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         return;
     
 	// Set the block to be submitted in response to an event
-	dispatch_source_set_event_handler(self.dispatchSource, ^{[self handleDocumentsDirectoryUpdateEvent];});
+	dispatch_source_set_event_handler(self.dispatchSource, ^{[self handleDocumentsDirectoryUpdateEventSilent:NO];});
     
 	// Unsuspend the source s.t. it will begin submitting blocks
 	dispatch_resume(self.dispatchSource);
     
     //kickstart the first event
-    [self handleDocumentsDirectoryUpdateEvent];
+    [self handleDocumentsDirectoryUpdateEventSilent:NO];
 }
 
 - (void)pause
@@ -174,7 +193,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 		self.dispatchSource = NULL;
 	
         //remove all data stores
-        self.documentsFolderCache = nil;
+        self.documentsFolderSnapshot = nil;
         self.pendingFiles = nil;
         
         //cancel the timer
@@ -184,7 +203,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 }
 
 #pragma mark - Update Event Handling -
-- (void)handleDocumentsDirectoryUpdateEvent
+- (void)handleDocumentsDirectoryUpdateEventSilent:(BOOL)silent
 {
     if (self.isPaused)
         return;
@@ -199,6 +218,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //Keep track if we make a change that needs to be persisted to disk
         BOOL diskWriteNecessary = NO;
         
+        //get a list of the current files in the Documents folder
         NSString *documentsPath = [TODocumentsDirectoryWatcher applicationDocumentsPath];
         
         //create the store to hold pending files in the Documents directory
@@ -210,13 +230,13 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             self.pendingSubdirectoryFiles = [NSMutableDictionary dictionary];
         
         //import the last snapshot cache if we haven't already got it
-        if (self.documentsFolderCache == nil) {
-            NSData *data = [NSData dataWithContentsOfFile:[TODocumentsDirectoryWatcher cachedDataFilePath]];
+        if (self.documentsFolderSnapshot == nil) {
+            NSData *data = [NSData dataWithContentsOfFile:[TODocumentsDirectoryWatcher snapshotDataFilePath]];
             if (data)
-                self.documentsFolderCache = [[NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil] mutableCopy];
+                self.documentsFolderSnapshot = [[NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:nil] mutableCopy];
             
-            if (data == nil || self.documentsFolderCache == nil)
-                self.documentsFolderCache = [NSMutableDictionary new];
+            if (data == nil || self.documentsFolderSnapshot == nil)
+                self.documentsFolderSnapshot = [NSMutableDictionary new];
         }
         
         //get a list of the current files in the Documents folder
@@ -225,7 +245,7 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //loop though all of these files to see if any aren't already in the cached snapshot
         NSMutableSet *possibleNewFiles = [NSMutableSet set];
         for (NSString *file in files) {
-            if (self.documentsFolderCache[file] == nil)
+            if (self.documentsFolderSnapshot[file] == nil)
                 [possibleNewFiles addObject:file];
         }
         
@@ -249,8 +269,8 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //loop through the new files and compare file system IDs to see if any of the new files are simply
         //renamed old files
         NSMutableDictionary *renamedFiles = [NSMutableDictionary dictionary];
-        for (NSString *cacheKey in self.documentsFolderCache.allKeys) {
-            NSDictionary *snapshotFile = self.documentsFolderCache[cacheKey];
+        for (NSString *cacheKey in self.documentsFolderSnapshot.allKeys) {
+            NSDictionary *snapshotFile = self.documentsFolderSnapshot[cacheKey];
             
             for (NSString *newFileKey in self.pendingFiles.allKeys) {
                 if ([snapshotFile[kCacheKeyFileIDNumber] integerValue] == [self.pendingFiles[newFileKey][kCacheKeyFileIDNumber] integerValue])
@@ -261,10 +281,10 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //for any renamed file, pull it out of the snapshot cache, rename it, and re-insert it
         if (renamedFiles.count > 0) {
             for (NSString *renameKey in renamedFiles.allKeys) {
-                NSMutableDictionary *snapshotFile = [self.documentsFolderCache[renameKey] mutableCopy];
-                [self.documentsFolderCache removeObjectForKey:renameKey];
+                NSMutableDictionary *snapshotFile = [self.documentsFolderSnapshot[renameKey] mutableCopy];
+                [self.documentsFolderSnapshot removeObjectForKey:renameKey];
                 snapshotFile[kCacheKeyFileName] = renamedFiles[renameKey];
-                self.documentsFolderCache[renamedFiles[renameKey]] = snapshotFile;
+                self.documentsFolderSnapshot[renamedFiles[renameKey]] = snapshotFile;
                 
                 [self.pendingFiles removeObjectForKey:renamedFiles[renameKey]];
                 
@@ -272,14 +292,16 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             }
             
             //post a notification about the file renaming
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:TODocumentsDirectoryWatcherDidRenameFiles object:nil userInfo:@{@"files":renamedFiles}];
-            });
+            if (silent == NO) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:TODocumentsDirectoryWatcherDidRenameFiles object:nil userInfo:@{@"files":renamedFiles}];
+                });
+            }
         }
         
         //check for any files that were deleted
         NSMutableArray *deletedFiles = [NSMutableArray array];
-        for (NSString *snapshotFileName in self.documentsFolderCache.allKeys) {
+        for (NSString *snapshotFileName in self.documentsFolderSnapshot.allKeys) {
             NSString *filePath = [documentsPath stringByAppendingPathComponent:snapshotFileName];
             if ([[NSFileManager defaultManager] fileExistsAtPath:filePath] == NO) {
                 [deletedFiles addObject:snapshotFileName];
@@ -289,24 +311,31 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
         //remove any deleted files from the snapshot
         if (deletedFiles.count > 0) {
             for (NSString *deletedFile in deletedFiles)
-                [self.documentsFolderCache removeObjectForKey:deletedFile];
+                [self.documentsFolderSnapshot removeObjectForKey:deletedFile];
             
             diskWriteNecessary = YES;
             
             //post a notification about the file renaming
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:TODocumentsDirectoryWatcherDidDeleteFiles object:nil userInfo:@{@"files":deletedFiles}];
-            });
+            if (silent == NO) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:TODocumentsDirectoryWatcherDidDeleteFiles object:nil userInfo:@{@"files":deletedFiles}];
+                });
+            }
+        }
+        
+        //if we're doing a silent update, don't bother with doing a file poll,
+        //(It's assumed that all files are fully copied already) and write the new data to the cache
+        if (silent && self.pendingFiles) {
+            [self.documentsFolderSnapshot addEntriesFromDictionary:self.pendingFiles];
+            diskWriteNecessary = YES;
         }
         
         //if a disk write was necessary, do it now
-        if (diskWriteNecessary) {
-            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.documentsFolderCache options:kNilOptions error:nil];
-            [jsonData writeToFile:[TODocumentsDirectoryWatcher cachedDataFilePath] atomically:YES];
-        }
+        if (diskWriteNecessary)
+            [self saveSnapshotContentsToDisk];
         
         //if there are pending files left, kickstart a polling timer
-        if (self.pendingFiles.count > 0 && self.fileImportTimer == nil) {
+        if (silent == NO && self.pendingFiles.count > 0 && self.fileImportTimer == nil) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 //kickstart a polling timer
                 self.fileImportTimer = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(importTimerFired) userInfo:nil repeats:YES];
@@ -316,9 +345,10 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
                 //post a notification to say we've started loading files
                 [[NSNotificationCenter defaultCenter] postNotificationName:TODocumentsDirectoryWatcherDidStartLoadingFiles object:nil];
             });
-        } else if (self.pendingFiles.count == 0) {
+        } else if (silent || self.pendingFiles.count == 0) {
             self.pendingFiles = nil;
-            self.documentsFolderCache = nil;
+            self.pendingSubdirectoryFiles = nil;
+            self.documentsFolderSnapshot = nil;
         }
     });
 }
@@ -356,22 +386,16 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             }];
             
             //add the pending files to the main snapshot
-            [self.documentsFolderCache addEntriesFromDictionary:self.pendingFiles];
+            [self.documentsFolderSnapshot addEntriesFromDictionary:self.pendingFiles];
             self.pendingFiles = nil;
             
             //save the state to disk
-            if (self.documentsFolderCache) {
-                NSData *data = [NSJSONSerialization dataWithJSONObject:self.documentsFolderCache options:kNilOptions error:nil];
-                [data writeToFile:[TODocumentsDirectoryWatcher cachedDataFilePath] atomically:YES];
-            }
-            else {
-                [[NSFileManager defaultManager] removeItemAtPath:[TODocumentsDirectoryWatcher cachedDataFilePath] error:nil];
-            }
+            [self saveSnapshotContentsToDisk];
             
             //clean the data
             self.pendingFiles = nil;
             self.pendingSubdirectoryFiles = nil;
-            self.documentsFolderCache = nil;
+            self.documentsFolderSnapshot = nil;
             
             //cancel the timer
             [self.fileImportTimer invalidate];
@@ -431,16 +455,9 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
 }
 
 #pragma mark - Static Methods - 
-+ (NSString *)cachedDataFilePath
++ (NSString *)snapshotDataFilePath
 {
-    return [[TODocumentsDirectoryWatcher applicationCachePath] stringByAppendingPathComponent:kTODocumentsDirectoryWatcherCacheFileName];
-}
-
-+ (NSString *)applicationCachePath
-{
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
-    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
-    return basePath;
+    return [[TODocumentsDirectoryWatcher applicationSupportPath] stringByAppendingPathComponent:kTODocumentsDirectoryWatcherCacheFileName];
 }
 
 + (NSString *)applicationDocumentsPath
@@ -450,10 +467,17 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
     return basePath;
 }
 
-+ (void)clearCachedData
++ (NSString *)applicationSupportPath
 {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[TODocumentsDirectoryWatcher cachedDataFilePath]])
-        [[NSFileManager defaultManager] removeItemAtPath:[TODocumentsDirectoryWatcher cachedDataFilePath] error:nil];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? [paths objectAtIndex:0] : nil;
+    return basePath;
+}
+
++ (void)clearSnapshotData
+{
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[TODocumentsDirectoryWatcher snapshotDataFilePath]])
+        [[NSFileManager defaultManager] removeItemAtPath:[TODocumentsDirectoryWatcher snapshotDataFilePath] error:nil];
 }
 
 @end

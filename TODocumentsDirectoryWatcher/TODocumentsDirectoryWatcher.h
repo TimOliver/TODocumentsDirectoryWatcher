@@ -60,6 +60,6 @@ extern NSString *const TODocumentsDirectoryWatcherDidDeleteFiles;
 - (void)stop;
 
 /* Remove the cached data stored to the 'Caches' directory. */
-+ (void)clearCachedData;
++ (void)clearSnapshotData;
 
 @end
