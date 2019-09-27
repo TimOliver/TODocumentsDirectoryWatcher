@@ -10,6 +10,7 @@
 		220779671918A35E00AB6B33 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 220779661918A35E00AB6B33 /* Foundation.framework */; };
 		220779691918A35E00AB6B33 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 220779681918A35E00AB6B33 /* CoreGraphics.framework */; };
 		2207796B1918A35E00AB6B33 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2207796A1918A35E00AB6B33 /* UIKit.framework */; };
+		2273672B233D9F51007158F2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2273672A233D9F51007158F2 /* LaunchScreen.storyboard */; };
 		228A0073191A487000724095 /* TODocumentsDirectoryWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0072191A487000724095 /* TODocumentsDirectoryWatcher.m */; };
 		228A0078191A488100724095 /* TOAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0075191A488100724095 /* TOAppDelegate.m */; };
 		228A0079191A488100724095 /* TOViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 228A0077191A488100724095 /* TOViewController.m */; };
@@ -23,6 +24,7 @@
 		220779681918A35E00AB6B33 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		2207796A1918A35E00AB6B33 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		220779851918A35E00AB6B33 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		2273672A233D9F51007158F2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		228A0071191A487000724095 /* TODocumentsDirectoryWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TODocumentsDirectoryWatcher.h; path = TODocumentsDirectoryWatcher/TODocumentsDirectoryWatcher.h; sourceTree = "<group>"; };
 		228A0072191A487000724095 /* TODocumentsDirectoryWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TODocumentsDirectoryWatcher.m; path = TODocumentsDirectoryWatcher/TODocumentsDirectoryWatcher.m; sourceTree = "<group>"; };
 		228A0074191A488100724095 /* TOAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TOAppDelegate.h; path = TODocumentsDirectoryWatcherExample/TOAppDelegate.h; sourceTree = SOURCE_ROOT; };
@@ -81,6 +83,7 @@
 		2207796C1918A35E00AB6B33 /* TODocumentsDirectoryWatcherExample */ = {
 			isa = PBXGroup;
 			children = (
+				2273672A233D9F51007158F2 /* LaunchScreen.storyboard */,
 				228A007A191A488B00724095 /* Images.xcassets */,
 				228A0074191A488100724095 /* TOAppDelegate.h */,
 				228A0075191A488100724095 /* TOAppDelegate.m */,
@@ -140,6 +143,11 @@
 				CLASSPREFIX = TO;
 				LastUpgradeCheck = 1110;
 				ORGANIZATIONNAME = TimOliver;
+				TargetAttributes = {
+					220779621918A35E00AB6B33 = {
+						DevelopmentTeam = 6LF3GMKZAB;
+					};
+				};
 			};
 			buildConfigurationList = 2207795E1918A35E00AB6B33 /* Build configuration list for PBXProject "TODocumentsDirectoryWatcherExample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -164,6 +172,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2273672B233D9F51007158F2 /* LaunchScreen.storyboard in Resources */,
 				228A007B191A488B00724095 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -288,12 +297,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 6LF3GMKZAB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Prefix.pch";
 				INFOPLIST_FILE = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.timoliver.${PRODUCT_NAME:rfc1034identifier}";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tim.TODocumentsDirectoryWatcherExample;
 				PRODUCT_NAME = TODocumentsDirectoryWatcherExample;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -302,12 +313,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = 6LF3GMKZAB;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Prefix.pch";
 				INFOPLIST_FILE = "TODocumentsDirectoryWatcherExample/TODocumentsDirectoryWatcherExample-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.timoliver.${PRODUCT_NAME:rfc1034identifier}";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.tim.TODocumentsDirectoryWatcherExample;
 				PRODUCT_NAME = TODocumentsDirectoryWatcherExample;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -369,7 +369,9 @@ static NSString * const kCacheKeyFileSize           = @"FileSize";
             
             //in any case, update the cached version with the current file size
             self.pendingFiles[pendingFileName][kCacheKeyFileSize] = @(attributes.fileSize);
-            
+
+            NSLog(@"%@", attributes);
+
             //====================================================
             
             //if the file is a directory, take a snapshot of its contents and see if they've changed

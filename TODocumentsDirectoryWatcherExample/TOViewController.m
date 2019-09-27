@@ -93,7 +93,7 @@ static NSString * const kCacheFileName = @"com.timoliver.DirectoryWatcherExample
 #pragma mark - Button Feedback -
 - (void)helpButtonItemTapped
 {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://support.apple.com/kb/ht4094"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://support.apple.com/kb/ht4094"] options:@{} completionHandler:nil];
 }
 
 - (void)addDirectoryButtonItemTapped
